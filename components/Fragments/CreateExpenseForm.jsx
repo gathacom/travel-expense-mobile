@@ -1,6 +1,5 @@
 import { StyleSheet, Text, View, Modal, TextInput, Alert } from "react-native";
 import React, { useState } from "react";
-import { FormGenerator } from 'react-native-form-maker';
 import { COLORS } from "../../constants/theme";
 import Button from "../Elements/Button";
 import { addExpense } from "../../api/expenseApi";

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const ipAddress = "192.168.1.196";
+const ipAddress = "192.168.78.201";
 
 export const signUp = async (data, callback) => {
     await axios

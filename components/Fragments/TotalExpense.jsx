@@ -1,16 +1,49 @@
-import { StyleSheet, Text, TextInput, View, Input } from "react-native";
+import { StyleSheet, Text, TextInput, View, Input, Alert } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { COLORS } from "../../constants/theme";
+import { totalExpenses } from "../../api/expenseApi";
+
+const API_KEY = 'cur_live_qMHCbPI4lK83ZUKyMBJh2wVgMiYnDOpOMEfARTIU';
+
+const curreciesData = [
+  { label: "IDR", value: "IDR" },
+  { label: "USD", value: "USD" },
+  { label: "EUR", value: "EUR" },
+  { label: "JPY", value: "JPY" },
+  { label: "GBP", value: "GBP" },
+  { label: "AUD", value: "AUD" },
+];
 
 const TotalExpense = ({ totalExpense }) => {
-  const [currency, setCurrency] = useState("");
+  const [currency, setCurrency] = useState("IDR");
+  const [convertedExpense, setConvertedExpense] = useState(totalExpense);
+
+  useEffect(() => {
+    const convertCurrency = async () => {
+      try {
+        const response = await axios.get(
+          `https://api.currencyapi.com/v3/latest?apikey=${API_KEY}&base_currency=IDR&currencies=${currency}`
+        );
+        const rate = response.data.data[currency].value;
+        setConvertedExpense(totalExpense * rate);
+      } catch (error) {
+        console.error("Error fetching currency data: ", error);
+      }
+    };
+    if (currency !== "IDR") {
+      convertCurrency();
+    } else {
+      setConvertedExpense(totalExpense);
+    }
+  }, [currency, totalExpense]);
 
   return (
     <View style={styles.container}>
     <Text style={{ fontSize:12, textAlign: "left" }}>Total Expense</Text>
       <View>
-        <Text style={{ fontWeight: "bold", fontSize: 20 }}>{totalExpense}</Text>
+        <Text style={{ fontWeight: "bold", fontSize: 20 }}>{convertedExpense.toFixed(2)}</Text>
       </View>
       <View style={styles.picker}>
         <Picker
@@ -20,8 +53,9 @@ const TotalExpense = ({ totalExpense }) => {
           style={{width: 120 }}
           onValueChange={(itemValue, itemIndex) => setCurrency(itemValue)}
         >
-          <Picker.Item label="IDR" value="IDR" />
-          <Picker.Item label="USD" value="USD" />
+          {curreciesData.map((item) => (
+            <Picker.Item key={item.value} label={item.label} value={item.value} />
+          ))}
         </Picker>
       </View>
     </View>

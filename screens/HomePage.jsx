@@ -8,20 +8,33 @@ import TripList from "../components/Layouts/TripList";
 import axios from 'axios';
 import { addTrip } from "../api/tripApi";
 import CreateTripForm from "../components/Fragments/CreateTripForm";
+import { totalExpenses } from "../api/expenseApi";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Stack = createNativeStackNavigator();
-function LogoTitle() {
-  return (
-    <Image
-      style={styles.image}
-      source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
-    />
-  );
-}
 
 const HomePage = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  
+  const [totalExpense, setTotalExpense] = useState(0);
+  const fetchTotalExpense = () => {
+    try {
+      totalExpenses((success, response) => {
+        console.log(response.data.totalExpense);
+        
+        if (response.status === 200) {
+          setTotalExpense(response.data.totalExpense);
+        } else {
+          Alert.alert("Error", "Failed to fetch trip data");
+        }
+      });
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    }
+  }
+  useEffect(() => {
+    // AsyncStorage.removeItem("token");
+    fetchTotalExpense();
+  }, [fetchTotalExpense]);
   return (
     <>
       <View style={styles.container}>
@@ -39,7 +52,7 @@ const HomePage = ({ navigation }) => {
             <Text style={{ fontWeight: "bold", fontSize: 24, color: COLORS.primary, marginBottom: 10 }}>| Gathacom</Text>
             <Button title="Add New Trip" onPress={() => setModalVisible(true)} />
           </View>
-          <TotalExpense totalExpense={1000000000} />
+          <TotalExpense totalExpense={totalExpense} />
         </View>
         <TripList />
       </View>
